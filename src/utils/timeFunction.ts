@@ -10,10 +10,14 @@ export const dateFunction = (
     if (status) {
       return new Date(
         dateMilisec + ((getMilisecInMonth(inputDate) as unknown) as number)
-      ).toISOString();
+      )
+        .toISOString()
+        .replace(".000Z", "Z");
     } else if (!status) {
       const fiveDaysMilisec: number = 1000 * 60 * 60 * 24 * 5;
-      return new Date(dateMilisec + fiveDaysMilisec).toISOString();
+      return new Date(dateMilisec + fiveDaysMilisec)
+        .toISOString()
+        .replace(".000Z", "Z");
     }
   } catch (error) {
     console.log(error);
