@@ -6,6 +6,6 @@ const app = createExpressServer({
   controllers: [TransactionsController],
 });
 
-app.listen(3001, "0.0.0.0", () => {
+app.listen(3001, () => {
   console.log("server started at http://localhost:3001");
 });
