@@ -12,13 +12,40 @@ export class TransactionsService {
     this.transactionRepository = new TransactionsRepository();
   }
 
-  async getAllTransactions(res: Response) {
-    const data = await this.transactionRepository.getAllTransactions();
+  async getTransactions(res: Response, page?: string) {
+    const resPerPage = 10; //results per page
+
+    let data:
+      | Transaction[]
+      | null = await this.transactionRepository.getAllTransactions();
 
     if (!data) {
       return res.status(400).json({
         message: "No transactions or no DB",
       });
+    }
+
+    if (!page) {
+      data = data;
+    } else {
+      let pageNr = parseInt(page);
+
+      if (isNaN(pageNr)) {
+        pageNr = 1;
+      }
+
+      if ((pageNr - 1) * resPerPage > data.length) {
+        return res.status(404).json({
+          message: "Max amount of page reached",
+        });
+      }
+
+      const paginatedData = data.slice(
+        resPerPage * (pageNr - 1),
+        resPerPage * pageNr
+      );
+
+      data = paginatedData;
     }
 
     return res.json(data);
@@ -52,8 +79,6 @@ export class TransactionsService {
           isIdExist = true;
         }
       });
-
-      console.log(isIdExist);
 
       if (!isIdExist) {
         transactions.push(inputRow);

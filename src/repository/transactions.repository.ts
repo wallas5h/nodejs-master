@@ -33,12 +33,9 @@ export class TransactionsRepository {
       ],
     });
 
-    // const record = [{ id, date, status, subscription }];
     const record = [data];
 
-    csvWriter.writeRecords(record).then(() => {
-      console.log("...Done");
-    });
+    csvWriter.writeRecords(record);
   };
 
   saveTransactions = async (data: Transaction[]) => {

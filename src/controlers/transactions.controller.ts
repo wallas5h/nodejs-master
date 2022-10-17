@@ -10,8 +10,13 @@ export class TransactionsController {
   }
 
   @Get("/transactions")
-  get(@Res() res: Response) {
-    return this.transactionsService.getAllTransactions(res);
+  getAll(@Res() res: Response) {
+    return this.transactionsService.getTransactions(res);
+  }
+
+  @Get("/transactions/:page")
+  getPagination(@Res() res: Response, @Param("page") page: string) {
+    return this.transactionsService.getTransactions(res, page);
   }
 
   @Post("/transactions")
