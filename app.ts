@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import { createExpressServer } from "routing-controllers";
-import { ApiController } from "./api/api.controller";
+import { TransactionsController } from "./src/controlers/transactions.controller";
 
 const app = createExpressServer({
-  controllers: [ApiController],
+  controllers: [TransactionsController],
 });
 
 app.listen(3001, "0.0.0.0", () => {
