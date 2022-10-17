@@ -3,6 +3,7 @@ import fs from "fs/promises";
 import { parse } from "json2csv";
 import path from "path";
 import { Transaction } from "../types/transaction.dto";
+import { NotFoundError } from "../utils/errors";
 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 
 export class TransactionsRepository {
@@ -21,21 +22,21 @@ export class TransactionsRepository {
   };
 
   createTransactionsCsv = async (data: Transaction) => {
-    const { id, date, status, subscription } = data;
-
-    const csvWriter = createCsvWriter({
-      path: this.csvFile,
-      header: [
-        { id: "id", title: "id" },
-        { id: "status", title: "status" },
-        { id: "date", title: "date" },
-        { id: "subscription", title: "subscription" },
-      ],
-    });
-
-    const record = [data];
-
-    csvWriter.writeRecords(record);
+    try {
+      const csvWriter = createCsvWriter({
+        path: this.csvFile,
+        header: [
+          { id: "id", title: "id" },
+          { id: "status", title: "status" },
+          { id: "date", title: "date" },
+          { id: "subscription", title: "subscription" },
+        ],
+      });
+      const record = [data];
+      csvWriter.writeRecords(record);
+    } catch (error) {
+      throw new NotFoundError();
+    }
   };
 
   saveTransactions = async (data: Transaction[]) => {
@@ -43,7 +44,7 @@ export class TransactionsRepository {
       await fs.writeFile(this.csvFile, parse(data));
       return true;
     } catch (error) {
-      return false;
+      throw new NotFoundError();
     }
   };
 }

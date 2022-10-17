@@ -2,6 +2,7 @@ import { Response } from "express";
 import { v4 as uuid } from "uuid";
 import { TransactionsRepository } from "../repository/transactions.repository";
 import { Transaction } from "../types/transaction.dto";
+import { NotFoundError, ValidationError } from "../utils/errors";
 
 import { dateFunction } from "../utils/timeFunction";
 
@@ -20,9 +21,7 @@ export class TransactionsService {
       | null = await this.transactionRepository.getAllTransactions();
 
     if (!data) {
-      return res.status(400).json({
-        message: "No transactions or no DB",
-      });
+      throw new NotFoundError();
     }
 
     if (!page) {
@@ -30,14 +29,15 @@ export class TransactionsService {
     } else {
       let pageNr = parseInt(page);
 
-      if (isNaN(pageNr)) {
-        pageNr = 1;
+      if (page.includes("%")) {
+        throw new ValidationError("Incorrect page number");
+      }
+      if (isNaN(pageNr) || pageNr < 1) {
+        throw new ValidationError("Incorrect page number");
       }
 
       if ((pageNr - 1) * resPerPage > data.length) {
-        return res.status(404).json({
-          message: "Max amount of page reached",
-        });
+        throw new ValidationError("Max amount of pages reached");
       }
 
       const paginatedData = data.slice(
@@ -88,7 +88,7 @@ export class TransactionsService {
       );
 
       if (!saveFileStatus) {
-        return res.status(500).json({ message: "Sorry, try later." });
+        throw new NotFoundError();
       }
     }
 
@@ -104,9 +104,7 @@ export class TransactionsService {
     let subscriptionDate: string | undefined;
 
     if (!transactions) {
-      return res.status(500).json({
-        message: "Sorry, try later.",
-      });
+      throw new NotFoundError();
     }
 
     transactions.forEach((row) => {
@@ -118,15 +116,16 @@ export class TransactionsService {
     });
 
     if (!isRowInDb) {
-      return res.status(404).json({ message: "Invalid id" });
+      throw new ValidationError("Invalid id");
     }
 
-    const saveFileStatus = await this.transactionRepository.saveTransactions(
+    let saveFileStatus: boolean = false;
+    saveFileStatus = await this.transactionRepository.saveTransactions(
       transactions
     );
 
     if (!saveFileStatus) {
-      return res.status(500).json({ message: "Sorry, try later." });
+      throw new NotFoundError();
     }
 
     return res.json({ message: "Transaction save.", subscriptionDate });

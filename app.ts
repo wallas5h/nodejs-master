@@ -1,9 +1,11 @@
+import "express-async-errors";
 import "reflect-metadata";
 import { createExpressServer } from "routing-controllers";
 import { TransactionsController } from "./src/controlers/transactions.controller";
+import { TransactionCreateDto } from "./src/types/transaction.dto";
 
 const app = createExpressServer({
-  controllers: [TransactionsController],
+  controllers: [TransactionsController, TransactionCreateDto],
 });
 
 app.listen(3001, () => {

@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { Body, Controller, Get, Param, Post, Res } from "routing-controllers";
 import { TransactionsService } from "../services/transaction.service";
-import { Transaction } from "../types/transaction.dto";
+import { TransactionCreateDto } from "../types/transaction.dto";
 
 @Controller(`/api`)
 export class TransactionsController {
@@ -20,7 +20,7 @@ export class TransactionsController {
   }
 
   @Post("/transactions")
-  post(@Body() transaction: Transaction, @Res() res: Response) {
+  post(@Body() transaction: TransactionCreateDto, @Res() res: Response) {
     return this.transactionsService.addTransaction(res, transaction);
   }
 
