@@ -35,7 +35,7 @@ export class TransactionsRepository {
       const record = [data];
       csvWriter.writeRecords(record);
     } catch (error) {
-      throw new NotFoundError();
+      throw new NotFoundError("Sorry, try later");
     }
   };
 
@@ -44,7 +44,7 @@ export class TransactionsRepository {
       await fs.writeFile(this.csvFile, parse(data));
       return true;
     } catch (error) {
-      throw new NotFoundError();
+      throw new NotFoundError("Sorry, try later");
     }
   };
 }

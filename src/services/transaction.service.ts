@@ -21,7 +21,9 @@ export class TransactionsService {
       | null = await this.transactionRepository.getAllTransactions();
 
     if (!data) {
-      throw new NotFoundError();
+      throw new NotFoundError(
+        "Not found transactions. Add transaction or try later."
+      );
     }
 
     if (!page) {
@@ -88,7 +90,7 @@ export class TransactionsService {
       );
 
       if (!saveFileStatus) {
-        throw new NotFoundError();
+        throw new NotFoundError("Sorry, try later");
       }
     }
 
@@ -104,7 +106,7 @@ export class TransactionsService {
     let subscriptionDate: string | undefined;
 
     if (!transactions) {
-      throw new NotFoundError();
+      throw new NotFoundError("Sorry, try later");
     }
 
     transactions.forEach((row) => {
@@ -125,7 +127,7 @@ export class TransactionsService {
     );
 
     if (!saveFileStatus) {
-      throw new NotFoundError();
+      throw new NotFoundError("Sorry, try later");
     }
 
     return res.json({ message: "Transaction save.", subscriptionDate });
