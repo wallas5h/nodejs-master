@@ -14,7 +14,7 @@ export class TransactionsService {
   }
 
   async getTransactions(res: Response, page?: string) {
-    const resPerPage = 10; //results per page
+    const resultsPerPage = 10; //results per page
 
     let data:
       | Transaction[]
@@ -38,13 +38,13 @@ export class TransactionsService {
         throw new ValidationError("Incorrect page number");
       }
 
-      if ((pageNr - 1) * resPerPage > data.length) {
-        throw new ValidationError("Max amount of pages reached");
+      if ((pageNr - 1) * resultsPerPage > data.length) {
+        throw new ValidationError("Max amount of pages has been exceeded");
       }
 
       const paginatedData = data.slice(
-        resPerPage * (pageNr - 1),
-        resPerPage * pageNr
+        resultsPerPage * (pageNr - 1),
+        resultsPerPage * pageNr
       );
 
       data = paginatedData;
@@ -53,9 +53,14 @@ export class TransactionsService {
     return res.json(data);
   }
 
-  async addTransaction(res: Response, body: Transaction) {
+  async addTransaction(body: Transaction, res: Response) {
     const { id, date, status } = body;
     const subscription = dateFunction(date, status);
+
+    if (!date || !status) {
+      throw new Error("Missing date or status");
+    }
+
     const inputRow: Transaction = {
       id: id && id !== "" ? id : uuid(),
       status,
@@ -72,17 +77,17 @@ export class TransactionsService {
     }
 
     if (transactions) {
-      let isIdExist = false;
+      let isExistIdInDB = false;
 
       // if id exist in transactions
       transactions.forEach((row) => {
         if (row.id === id) {
           row.subscription = subscription;
-          isIdExist = true;
+          isExistIdInDB = true;
         }
       });
 
-      if (!isIdExist) {
+      if (!isExistIdInDB) {
         transactions.push(inputRow);
       }
       const saveFileStatus = await this.transactionRepository.saveTransactions(
@@ -90,14 +95,18 @@ export class TransactionsService {
       );
 
       if (!saveFileStatus) {
-        throw new NotFoundError("Sorry, try later");
+        throw new Error("Sorry, try later");
       }
     }
 
-    return res.json({ subscription });
+    return res.json({ newDate: subscription });
   }
 
   async updateTransaction(id: string, res: Response) {
+    if (!id) {
+      throw new ValidationError("No id provide.");
+    }
+
     const transactions:
       | Transaction[]
       | null = await this.transactionRepository.getAllTransactions();
@@ -130,6 +139,9 @@ export class TransactionsService {
       throw new NotFoundError("Sorry, try later");
     }
 
-    return res.json({ message: "Transaction save.", subscriptionDate });
+    return res.json({
+      message: "Transaction save.",
+      newDate: subscriptionDate,
+    });
   }
 }

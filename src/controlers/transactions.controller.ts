@@ -21,7 +21,7 @@ export class TransactionsController {
 
   @Post("/transactions")
   post(@Body() transaction: TransactionCreateDto, @Res() res: Response) {
-    return this.transactionsService.addTransaction(res, transaction);
+    return this.transactionsService.addTransaction(transaction, res);
   }
 
   @Post("/transactions/:id")
