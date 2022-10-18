@@ -4,7 +4,6 @@ npm start
 
 npm start-dev
 
-Runs the app in the development mode.
 Requests url: 
 http://localhost:3001/api/transactions 
 
